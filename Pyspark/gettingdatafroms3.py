@@ -24,5 +24,5 @@ df = create_spark_session().read.json('s3a://dataminded-academy-capstone-resourc
 df.printSchema()
 #check out which are the columnames
 flattened_df = df.select(["city","coordinates.latitude","coordinates.longitude","country","date.local","date.utc","entity","isAnalysis","isMobile","location","locationId","parameter","sensorType","unit","value"])
-df.show()
-df.showSchema()
+# df.show()
+flattened_df.printSchema()
