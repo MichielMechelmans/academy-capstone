@@ -26,3 +26,28 @@ df.printSchema()
 flattened_df = df.select(["city","coordinates.latitude","coordinates.longitude","country","date.local","date.utc","entity","isAnalysis","isMobile","location","locationId","parameter","sensorType","unit","value"])
 # df.show()
 flattened_df.printSchema()
+
+
+def connect_to_snowflake():
+    crednetials = get_secrets()
+    secret_string = credentials['SecretString']
+
+    secrets = json.loads(secret_string)
+
+    SNOWFLAKE_SOURCE_NAME = "net.snowflake.spark.snowflake"
+
+    sfOptions   = {
+        "sfURL" : secrets["URL"] + ".snowflakecomputing.com",
+        "sfUser" : secrets["USER_NAME"],
+        "sfAuthenticator" : secrets["oauth"],
+        "sfDatabase" : secrets["DATABASE"],
+        "sfSchema" : "Michiel",
+        "sfWarehouse" : secrets["WAREHOUSE"]
+    }
+    (df.write
+        .format(SNOWFLAKE_SOURCE_NAME)
+        .options(**sfOptions)
+        .option("dbtable","Michiel")
+        .mode("overwrite")
+        .save()
+    )
