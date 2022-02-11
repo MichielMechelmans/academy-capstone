@@ -15,7 +15,7 @@ def create_spark_session() -> SparkSession:
 # the credentials will be rendered from AWS using those functions above in config
 
 
-df = create_spark_session().read.json('s3a://dataminded-academy-capstone-resources/raw/open_aq/data_part_1.json')
+df = create_spark_session().read.json('s3a://dataminded-academy-capstone-resources/raw/open_aq/*json')
 
 # df.write.json("../resources/weather.json")
 
