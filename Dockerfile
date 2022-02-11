@@ -4,4 +4,4 @@ COPY ./requirements.txt
 RUN pip install -r ./requirements.txt
 RUN aws configure
 COPY ./Pyspark
-CMD [ "/bin/bash","python","Pyspark/gettingdatafroms3pushtosnowflake.py"]
+CMD [ "/bin/bash","python","Pyspark/gettingdatafroms3.py"]
