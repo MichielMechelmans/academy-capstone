@@ -1,4 +1,4 @@
-from pyspark import SparkConf, SparkContext
+gifrom pyspark import SparkConf, SparkContext
 from pyspark.sql import SparkSession
 from secretsmanager import get_secrets
 import json

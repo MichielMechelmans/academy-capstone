@@ -1,6 +1,7 @@
 from pyspark import SparkConf, SparkContext
 from pyspark.sql import SparkSession
-
+from secretsmanager import get_secrets
+import json
 
 def create_spark_session() -> SparkSession:
     spark = ( SparkSession.builder 
@@ -19,6 +20,31 @@ df = create_spark_session().read.json('s3a://dataminded-academy-capstone-resourc
 # df.write.json("../resources/weather.json")
 
 
+def write_to_snowflake(df):
+    credentials = get_secrets()
+    secret_string = credentials['SecretString']
+
+    secrets = json.loads(secret_string)
+
+    SNOWFLAKE_SOURCE_NAME = "net.snowflake.spark.snowflake"
+
+    sfOptions   = {
+        "sfURL" : secrets["URL"] + ".snowflakecomputing.com",
+        "sfUser" : secrets["USER_NAME"],
+        "sfDatabase" : secrets["DATABASE"],
+        "sfPassword": secrets["PASSWORD"],
+        "sfRole": secrets["ROLE"],
+        "sfSchema" : "MICHIEL",
+        "sfWarehouse" : secrets["WAREHOUSE"]
+    }
+    (df.write
+        .format(SNOWFLAKE_SOURCE_NAME)
+        .options(**sfOptions)
+        .option("dbtable","MICHIEL")
+        .mode("overwrite")
+        .save()
+    )
+
 
 #df.show()
 df.printSchema()
@@ -26,10 +52,11 @@ df.printSchema()
 flattened_df = df.select(["city","coordinates.latitude","coordinates.longitude","country","date.local","date.utc","entity","isAnalysis","isMobile","location","locationId","parameter","sensorType","unit","value"])
 # df.show()
 flattened_df.printSchema()
+write_to_snowflake(flattened_df)
 
 
-def connect_to_snowflake():
-    crednetials = get_secrets()
+def write_to_snowflake(df):
+    credentials = get_secrets()
     secret_string = credentials['SecretString']
 
     secrets = json.loads(secret_string)
@@ -41,13 +68,13 @@ def connect_to_snowflake():
         "sfUser" : secrets["USER_NAME"],
         "sfAuthenticator" : secrets["oauth"],
         "sfDatabase" : secrets["DATABASE"],
-        "sfSchema" : "Michiel",
+        "sfSchema" : "MICHIEL",
         "sfWarehouse" : secrets["WAREHOUSE"]
     }
     (df.write
         .format(SNOWFLAKE_SOURCE_NAME)
         .options(**sfOptions)
-        .option("dbtable","Michiel")
+        .option("dbtable","MICHIEL")
         .mode("overwrite")
         .save()
     )
