@@ -1,4 +1,4 @@
-gifrom pyspark import SparkConf, SparkContext
+from pyspark import SparkConf, SparkContext
 from pyspark.sql import SparkSession
 from secretsmanager import get_secrets
 import json
@@ -54,27 +54,3 @@ flattened_df = df.select(["city","coordinates.latitude","coordinates.longitude",
 flattened_df.printSchema()
 write_to_snowflake(flattened_df)
 
-
-def write_to_snowflake(df):
-    credentials = get_secrets()
-    secret_string = credentials['SecretString']
-
-    secrets = json.loads(secret_string)
-
-    SNOWFLAKE_SOURCE_NAME = "net.snowflake.spark.snowflake"
-
-    sfOptions   = {
-        "sfURL" : secrets["URL"] + ".snowflakecomputing.com",
-        "sfUser" : secrets["USER_NAME"],
-        "sfAuthenticator" : secrets["oauth"],
-        "sfDatabase" : secrets["DATABASE"],
-        "sfSchema" : "MICHIEL",
-        "sfWarehouse" : secrets["WAREHOUSE"]
-    }
-    (df.write
-        .format(SNOWFLAKE_SOURCE_NAME)
-        .options(**sfOptions)
-        .option("dbtable","MICHIEL")
-        .mode("overwrite")
-        .save()
-    )
